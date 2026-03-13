@@ -538,7 +538,7 @@ def load_league(league_name: str):
     raw = get_all_matches(cfg["code"], cfg["season"])
     if raw.empty:
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
-    raw["date"] = pd.to_datetime(raw["date"], utc=True)
+    raw["date"] = pd.to_datetime(raw["date"], utc=True).dt.tz_convert("Europe/Berlin")
     upcoming = (raw[raw["status"].isin(["SCHEDULED", "TIMED"])]
                 .sort_values("date").head(9).copy())
     finished = raw[raw["status"] == "FINISHED"].copy()
