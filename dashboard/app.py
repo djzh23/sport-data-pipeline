@@ -205,6 +205,20 @@ html, body, [class*="css"], .stApp {{
 }}
 .match-card:hover {{ box-shadow: 0 2px 12px rgba(0,0,0,0.08); }}
 
+/* Upcoming matches */
+.upcoming-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}}
+.upcoming-card {{
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}}
+.upcoming-card:hover {{ box-shadow: 0 4px 16px rgba(0,0,0,0.1); }}
+
 /* Metrics */
 [data-testid="stMetric"] {{
     background: {T['card_bg']} !important;
@@ -390,6 +404,11 @@ header[data-testid="stHeader"] {{
         grid-template-columns: 1fr 70px 1fr !important;
         padding: 10px 12px !important;
     }}
+    /* Upcoming grid */
+    .upcoming-grid {{
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }}
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -414,6 +433,13 @@ TEAM_IDS = {
     "Real Madrid CF": 86, "FC Barcelona": 81, "Club Atlético de Madrid": 78,
     "Athletic Club": 77, "Real Sociedad de Fútbol": 92, "Villarreal CF": 94,
 }
+
+DAYS_DE   = {0:"Mo",1:"Di",2:"Mi",3:"Do",4:"Fr",5:"Sa",6:"So"}
+MONTHS_DE = {1:"Jan",2:"Feb",3:"Mär",4:"Apr",5:"Mai",6:"Jun",
+             7:"Jul",8:"Aug",9:"Sep",10:"Okt",11:"Nov",12:"Dez"}
+
+def fmt_date(dt):
+    return f"{DAYS_DE[dt.weekday()]}, {dt.day}. {MONTHS_DE[dt.month]} · {dt.strftime('%H:%M')}"
 
 # ── Sidebar ───────────────────────────────────────────
 with st.sidebar:
@@ -511,13 +537,16 @@ def load_league(league_name: str):
     cfg = LEAGUES[league_name]
     raw = get_all_matches(cfg["code"], cfg["season"])
     if raw.empty:
-        return pd.DataFrame(), pd.DataFrame()
-    df = add_match_results(raw)
-    df = df[df["status"] == "FINISHED"].copy()
-    standings = build_standings(df)
-    return df, standings
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+    raw["date"] = pd.to_datetime(raw["date"], utc=True)
+    upcoming = (raw[raw["status"].isin(["SCHEDULED", "TIMED"])]
+                .sort_values("date").head(9).copy())
+    finished = raw[raw["status"] == "FINISHED"].copy()
+    finished = add_match_results(finished)
+    standings = build_standings(finished)
+    return finished, standings, upcoming
 
-df, standings = load_league(selected_league)
+df, standings, upcoming = load_league(selected_league)
 if df.empty:
     st.error("Keine Daten verfügbar.")
     st.stop()
@@ -581,6 +610,32 @@ st.markdown(f"""
 if page == "Übersicht":
     st.markdown(f'<div class="page-title">⚽ {selected_league}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="page-subtitle">Saison 2025/26 · {len(df)} Spiele gespielt · Spieltag {int(df["matchday"].max())} von 34</div>', unsafe_allow_html=True)
+
+    # ── Nächste Spiele ────────────────────────────────
+    if not upcoming.empty:
+        st.markdown('<div class="section-hdr">Nächste Spiele</div>', unsafe_allow_html=True)
+        cards_html = ""
+        for _, row in upcoming.head(6).iterrows():
+            date_str = fmt_date(row["date"])
+            cards_html += f"""
+            <div class="upcoming-card" style="background:{T['card_bg']};border:1px solid {T['border']};">
+                <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;
+                            letter-spacing:0.1em;color:{color};margin-bottom:8px;">
+                    Spieltag {int(row['matchday'])}
+                </div>
+                <div style="font-size:0.88rem;font-weight:600;color:{T['text_primary']};
+                            line-height:1.5;margin-bottom:10px;">
+                    {row['home_team']}
+                    <span style="display:block;font-size:0.7rem;font-weight:400;
+                                 color:{T['text_muted']};margin:1px 0;">vs</span>
+                    {row['away_team']}
+                </div>
+                <div style="font-size:0.72rem;color:{T['text_secondary']};
+                            padding-top:8px;border-top:1px solid {T['border2']};">
+                    {date_str}
+                </div>
+            </div>"""
+        st.markdown(f'<div class="upcoming-grid">{cards_html}</div>', unsafe_allow_html=True)
 
     total_goals = int(df["total_goals"].sum())
     avg_goals = df["total_goals"].mean()
