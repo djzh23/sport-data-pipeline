@@ -28,7 +28,7 @@
 
 | Mobile Ansicht |
 |:---:|
-| ![Mobile](screenshots/bilanz-mobile.png) |
+| <img src="screenshots/bilanz-mobile.png" width="320"> |
 
 ---
 
