@@ -325,6 +325,72 @@ header[data-testid="stHeader"] {{
     margin: 0 8px !important;
     width: calc(100% - 16px) !important;
 }}
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {{
+    .block-container {{
+        padding: 1.2rem 1rem !important;
+    }}
+    .kpi-grid {{
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin: 1rem 0 1.5rem !important;
+    }}
+    .kpi-val {{
+        font-size: 1.9rem !important;
+    }}
+    .kpi {{
+        padding: 18px 14px !important;
+    }}
+    .page-title {{
+        font-size: 1.4rem !important;
+    }}
+    .page-subtitle {{
+        font-size: 0.78rem !important;
+        margin-bottom: 1rem !important;
+    }}
+    .section-hdr {{
+        margin: 1.5rem 0 0.8rem !important;
+    }}
+    /* Top header: stack vertically */
+    .top-header {{
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }}
+    .top-header-badges {{
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }}
+    /* Standings: hide middle columns, keep pos/logo/team/pts */
+    .standing-header,
+    .standing-row {{
+        grid-template-columns: 36px 30px 1fr 60px !important;
+        padding: 10px 10px !important;
+    }}
+    .standing-row > div:nth-child(4),
+    .standing-row > div:nth-child(5),
+    .standing-row > div:nth-child(6),
+    .standing-row > div:nth-child(7),
+    .standing-row > div:nth-child(8),
+    .standing-row > div:nth-child(9),
+    .standing-header > div:nth-child(4),
+    .standing-header > div:nth-child(5),
+    .standing-header > div:nth-child(6),
+    .standing-header > div:nth-child(7),
+    .standing-header > div:nth-child(8),
+    .standing-header > div:nth-child(9) {{
+        display: none !important;
+    }}
+    .team-name {{
+        font-size: 0.78rem !important;
+    }}
+    /* Match cards */
+    .match-card {{
+        grid-template-columns: 1fr 70px 1fr !important;
+        padding: 10px 12px !important;
+    }}
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -474,7 +540,7 @@ league_short = selected_league.replace("🇩🇪","").replace("🏴󠁧󠁢󠁥�
 # ── App Top Header ────────────────────────────────────
 matchday_info = f"Spieltag {int(df['matchday'].max())} · {len(df)} Spiele"
 st.markdown(f"""
-<div style="display:flex;align-items:center;justify-content:space-between;
+<div class="top-header" style="display:flex;align-items:center;justify-content:space-between;
             padding:14px 0 20px;border-bottom:1px solid {T['border']};margin-bottom:8px;">
     <div style="display:flex;align-items:center;gap:14px;">
         <div style="width:40px;height:40px;border-radius:12px;
@@ -489,7 +555,7 @@ st.markdown(f"""
                 Football Analytics Platform</div>
         </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div class="top-header-badges" style="display:flex;align-items:center;gap:8px;">
         <div style="background:{T['card_bg']};border:1px solid {T['border']};
                     border-radius:20px;padding:6px 14px;font-size:0.78rem;
                     color:{T['text_secondary']};font-weight:500;">
@@ -649,17 +715,17 @@ elif page == "Spieltage":
     for _, row in filtered.sort_values("total_goals", ascending=False).iterrows():
         h = int(row["home_goals"])
         a = int(row["away_goals"])
-        hw = "font-weight:700;color:#fff" if row["result"] == "home_win" else "color:#555"
-        aw = "font-weight:700;color:#fff" if row["result"] == "away_win" else "color:#555"
-        score_color = color if row["result"] != "draw" else "#888"
+        hw = f"font-weight:700;color:{T['text_primary']}" if row["result"] == "home_win" else f"color:{T['text_secondary']}"
+        aw = f"font-weight:700;color:{T['text_primary']}" if row["result"] == "away_win" else f"color:{T['text_secondary']}"
+        score_color = color if row["result"] != "draw" else T["text_secondary"]
         st.markdown(f"""
         <div style="display:grid;grid-template-columns:1fr 90px 1fr;align-items:center;
-                    padding:13px 24px;margin-bottom:4px;background:#13151c;
-                    border-radius:10px;border:1px solid #1e2230;">
-            <div style="text-align:right;font-size:0.9rem;{hw}">{row["home_team"]}</div>
-            <div style="text-align:center;font-size:1.25rem;font-weight:700;
+                    padding:13px 16px;margin-bottom:4px;background:{T['card_bg']};
+                    border-radius:10px;border:1px solid {T['border']};">
+            <div style="text-align:right;font-size:0.88rem;{hw}">{row["home_team"]}</div>
+            <div style="text-align:center;font-size:1.2rem;font-weight:700;
                         color:{score_color};letter-spacing:0.05em">{h} : {a}</div>
-            <div style="text-align:left;font-size:0.9rem;{aw}">{row["away_team"]}</div>
+            <div style="text-align:left;font-size:0.88rem;{aw}">{row["away_team"]}</div>
         </div>
         """, unsafe_allow_html=True)
 
