@@ -26,6 +26,10 @@
 |:---:|:---:|
 | ![Tabelle](screenshots/table.png) | ![Team](screenshots/team-analysis.png) |
 
+| Mobile Ansicht |
+|:---:|
+| ![Mobile](screenshots/bilanz-mobile.png) |
+
 ---
 
 ## Was das Projekt macht
