@@ -10,7 +10,7 @@
 [![DuckDB](https://img.shields.io/badge/DuckDB-1.5-FFC832?style=flat&logo=duckdb&logoColor=black)](https://duckdb.org)
 [![Plotly](https://img.shields.io/badge/Plotly-6.x-3F4F75?style=flat&logo=plotly&logoColor=white)](https://plotly.com)
 
-**[🚀 Live Demo](https://djzh23-sport-data-pipeline.streamlit.app)** · **[📋 API Dokumentation](https://www.football-data.org)**
+**[🚀 Live Demo](https://korasta.streamlit.app/)** · **[📋 API Dokumentation](https://www.football-data.org)**
 
 </div>
 
